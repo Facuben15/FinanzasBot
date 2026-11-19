@@ -1,4 +1,3 @@
-
 import sqlite3
 import os
 import json
@@ -31,12 +30,67 @@ def init_db():
             )"""
         )
 
+        c.execute(
+            """CREATE TABLE IF NOT EXISTS analisis_estructurado (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                chat_id INTEGER NOT NULL,
+                consulta TEXT NOT NULL,
+                perfil_detectado TEXT NOT NULL,
+                intencion TEXT NOT NULL,
+                activos_mencionados TEXT NOT NULL,
+                nivel_riesgo TEXT NOT NULL,
+                datos_json TEXT NOT NULL,
+                creado TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+            )"""
+        )
+
+        c.execute(
+            """CREATE TABLE IF NOT EXISTS simulaciones (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                chat_id INTEGER NOT NULL,
+                tipo_activo TEXT NOT NULL,
+                ticker TEXT NOT NULL,
+                monto_pesos REAL NOT NULL,
+                precio_unitario REAL NOT NULL,
+                cantidad_estimada REAL NOT NULL,
+                creado TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+            )"""
+        )
+
 
 def guardar(chat_id, rol, contenido):
     with _conn() as c:
         c.execute(
             "INSERT INTO mensajes (chat_id, rol, contenido) VALUES (?, ?, ?)",
             (chat_id, rol, contenido),
+        )
+
+
+def guardar_analisis(chat_id, consulta, analisis_dict):
+    with _conn() as c:
+        c.execute(
+            """INSERT INTO analisis_estructurado
+               (chat_id, consulta, perfil_detectado, intencion, activos_mencionados, nivel_riesgo, datos_json)
+               VALUES (?, ?, ?, ?, ?, ?, ?)""",
+            (
+                chat_id,
+                consulta,
+                analisis_dict.get("perfil_detectado", "no_especificado"),
+                analisis_dict.get("intencion", "consulta_general"),
+                ", ".join(analisis_dict.get("activos_mencionados", [])),
+                analisis_dict.get("nivel_riesgo", "medio"),
+                json.dumps(analisis_dict, ensure_ascii=False),
+            ),
+        )
+
+
+def guardar_simulacion(chat_id, tipo_activo, ticker, monto_pesos, precio_unitario, cantidad_estimada):
+    with _conn() as c:
+        c.execute(
+            """INSERT INTO simulaciones
+               (chat_id, tipo_activo, ticker, monto_pesos, precio_unitario, cantidad_estimada)
+               VALUES (?, ?, ?, ?, ?, ?)""",
+            (chat_id, tipo_activo, ticker, monto_pesos, precio_unitario, cantidad_estimada),
         )
 
 
@@ -61,8 +115,6 @@ def historial_pasos(chat_id):
             (chat_id,),
         ).fetchall()
 
-        # Recuperar conversaciones anteriores si todavía
-        # estaban guardadas en la tabla mensajes.
         if not filas:
             mensajes = c.execute(
                 """SELECT rol, contenido FROM mensajes
