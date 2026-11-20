@@ -62,6 +62,14 @@ def obtener_menu():
     return ReplyKeyboardMarkup(botones, resize_keyboard=True)
 
 
+def obtener_menu_mejores():
+    botones = [
+        [KeyboardButton("🌎 Mejores CEDEARs"), KeyboardButton("🇦🇷 Mejores Acciones")],
+        [KeyboardButton("⬅️ Volver al menú")],
+    ]
+    return ReplyKeyboardMarkup(botones, resize_keyboard=True)
+
+
 def obtener_menu_volver():
     botones = [[KeyboardButton("⬅️ Volver al menú")]]
     return ReplyKeyboardMarkup(botones, resize_keyboard=True)
@@ -179,37 +187,42 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
     )
 
 
-# CONSULTAR LOS 5 MEJORES
-async def consultar_mejores(update: Update):
+# CONSULTAR LOS MEJORES POR CATEGORIA (CEDEARS O ACCIONES)
+async def consultar_mejores_categoria(update: Update, categoria: str):
+    es_cedear = categoria == "cedears"
+    titulo = "🌎 TOP 8 CEDEARS" if es_cedear else "🇦🇷 TOP 8 ACCIONES ARGENTINAS"
+    funcion_top = finanzas.obtener_top_cedears if es_cedear else finanzas.obtener_top_acciones
+
     await update.message.reply_text("Consultando los activos...")
 
     try:
-        activos = await asyncio.to_thread(finanzas.obtener_top_mejores)
+        activos = await asyncio.to_thread(funcion_top)
 
         if not activos:
             await update.message.reply_text(
-                "No se encontraron activos que cumplan los filtros.",
-                reply_markup=obtener_menu_volver()
+                "No se encontraron activos que cumplan los filtros en este momento.",
+                reply_markup=obtener_menu_mejores()
             )
             return
 
-        texto = "📈 TOP 5 ACTIVOS CON MAYOR CRECIMIENTO\n\n"
+        texto = f"{titulo}\n\n"
         for i, activo in enumerate(activos, start=1):
+            signo = "+" if activo["variacion"] > 0 else ""
             texto += (
                 f"{i}. {activo['ticker']}\n"
-                f"   Variación: +{formato_numero(activo['variacion'])}%\n"
+                f"   Variación: {signo}{formato_numero(activo['variacion'])}%\n"
                 f"   Precio: ${formato_numero(activo['precio'])}\n"
                 f"   Monto operado estimado: ${formato_numero(activo['monto_operado'])}\n\n"
             )
         texto += "Datos de la última rueda disponible."
 
-        await update.message.reply_text(texto, reply_markup=obtener_menu_volver())
+        await update.message.reply_text(texto, reply_markup=obtener_menu_mejores())
 
     except Exception:
-        logging.exception("Error consultando los mejores activos")
+        logging.exception("Error consultando los mejores activos de %s", categoria)
         await update.message.reply_text(
             "No pude consultar los activos. Probá nuevamente.",
-            reply_markup=obtener_menu_volver()
+            reply_markup=obtener_menu_mejores()
         )
 
 
@@ -436,10 +449,23 @@ async def mensaje(update: Update, context: ContextTypes.DEFAULT_TYPE):
         )
         return
 
-    # CONSULTAR LOS MEJORES
+    # SUBMENU DE CONSULTAR LOS MEJORES
     if texto == "📈 Consultar los mejores":
         context.user_data.clear()
-        await consultar_mejores(update)
+        await update.message.reply_text(
+            "¿Qué categoría querés consultar?",
+            reply_markup=obtener_menu_mejores()
+        )
+        return
+
+    if texto == "🌎 Mejores CEDEARs":
+        context.user_data.clear()
+        await consultar_mejores_categoria(update, "cedears")
+        return
+
+    if texto == "🇦🇷 Mejores Acciones":
+        context.user_data.clear()
+        await consultar_mejores_categoria(update, "acciones")
         return
 
     # BUSCAR ACCION O CEDEAR

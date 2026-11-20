@@ -103,15 +103,14 @@ def obtener_top_activos(lista, monto_minimo):
         if datos is None:
             continue
 
-        if datos["variacion"] > 0 and datos["monto_operado"] > monto_minimo:
-            resultados.append(datos)
+        resultados.append(datos)
 
     resultados.sort(
         key=lambda activo: activo["variacion"],
         reverse=True
     )
 
-    return resultados[:10]
+    return resultados[:8]
 
 
 def obtener_top_acciones():
@@ -133,7 +132,7 @@ def obtener_top_mejores():
         reverse=True
     )
 
-    return todos[:5]
+    return todos[:8]
 
 
 def _formatear_linea(d):
@@ -165,9 +164,10 @@ def obtener_contexto_mercado(consulta_usuario=""):
         for d in datos_acciones:
             lineas.append(_formatear_linea(d))
 
-    palabras = re.findall(r"\b[A-Za-z]{2,6}(?:\.BA)?\b", consulta_usuario.upper())
+    # Solo busca tickers adicionales si el usuario los escribió en mayúsculas (ej. KO, DIS, VIST.BA)
+    palabras = re.findall(r"\b[A-Z]{2,6}(?:\.BA)?\b", consulta_usuario)
     conocidos = set(CEDEARS + ACCIONES)
-    ignorar = {"QUE", "LOS", "LAS", "DEL", "MAS", "SON", "CON", "POR", "UNA", "COMO", "PARA", "HOLA", "SEMANA", "ULTIMA", "ULTIMO", "MES", "MESES", "TRES", "TOP", "CEDEAR", "CEDEARS"}
+    ignorar = {"CEDEAR", "CEDEARS", "TOP", "BYMA", "ARCA", "ETF", "API", "JSON"}
     for p in palabras:
         posible = p if "." in p else f"{p}.BA"
         if posible not in conocidos and p not in ignorar:

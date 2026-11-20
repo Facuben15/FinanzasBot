@@ -1,0 +1,58 @@
+============================================================
+          REPORTE DE EVALUACIÓN - FINANZASBOT (HITO 4)      
+============================================================
+Total de casos evaluados : 8
+Casos aprobados          : 7
+Casos fallidos           : 1
+Porcentaje de efectividad: 87.5%
+============================================================
+
+Caso #1: Ranking de CEDEARs semanales con datos de Yahoo Finance -> [APROBADO]
+  - Perfil detectado   : no_especificado
+  - Intención detectada: ranking
+  - Respuesta del bot  : Basado en el volumen operado de la última semana, el ranking de los 3 CEDEARs más operados es:
+
+1. NVDA.BA: $261.172.522.490
+2. GOOGL.BA: $32.516.621.710
+3. MELI.BA: $21.502.459.810
+
+Recuerda que estos datos son informativos y no constituyen una recomendación de inversión. ¿Te gustaría consultar el rendimiento semanal de alguno de estos activos?
+
+Caso #2: Detección de perfil conservador -> [APROBADO]
+  - Perfil detectado   : conservador
+  - Intención detectada: cartera
+  - Respuesta del bot  : Entiendo tu enfoque. Para un perfil conservador con $500.000, es fundamental priorizar la liquidez y la preservación del capital sobre la exposición a la alta volatilidad de la renta variable. Considera instrumentos de renta fija, como Obligaciones Negociables en dólares o bonos soberanos de corto plazo, que suelen presentar menor riesgo que los activos presentados hoy en el panel (como GGAL.BA o CEDEARs tecnológicos, que muestran caídas significativas). Recuerda que estas opciones no garantizan rendimientos y el riesgo siempre existe. ¿Te gustaría analizar alternativas de renta fija disponibles en el mercado?
+
+Caso #3: Rechazo de tema ajeno a finanzas (receta de cocina) -> [APROBADO]
+  - Perfil detectado   : no_especificado
+  - Intención detectada: fuera_de_tema
+  - Respuesta del bot  : Como asistente de mercados financieros, mi alcance se limita exclusivamente a temas de inversiones y análisis de activos. No puedo ayudarte con recetas de cocina, pero estoy a tu disposición para analizar el mercado de CEDEARs, acciones argentinas o conceptos sobre gestión de cartera. ¿En qué puedo ayudarte hoy?
+
+Caso #4: Consulta de cotización puntual de acción argentina (GGAL) -> [APROBADO]
+  - Perfil detectado   : no_especificado
+  - Intención detectada: cotizacion
+  - Respuesta del bot  : El precio actual de GGAL.BA es $4.552,50. Presenta una variación diaria de -4,61% y una baja semanal del -9,04%. Recuerda que estos datos son informativos y no constituyen una recomendación de inversión.
+
+Caso #5: Concepto educativo (Ratio Beta) -> [APROBADO]
+  - Perfil detectado   : no_especificado
+  - Intención detectada: educacion_financiera
+  - Respuesta del bot  : El ratio Beta mide la volatilidad de un activo en relación con el mercado general. Un valor de 1.00 indica que la acción se mueve en sincronía con el mercado; un Beta superior a 1.00 señala mayor volatilidad (más riesgo, mayor potencial de oscilación), mientras que un valor inferior a 1.00 sugiere una menor sensibilidad a las fluctuaciones del mercado. Es una herramienta clave para evaluar el riesgo sistemático de tu cartera. Ten en cuenta que esta información es orientativa y no constituye asesoramiento financiero.
+
+Caso #6: Memoria de conversación en múltiples turnos -> [APROBADO]
+  - Perfil detectado   : agresivo
+  - Intención detectada: cartera
+  - Respuesta del bot  : Tienes un perfil agresivo y el activo que sigues es NVDA.BA, el cual cotiza actualmente a $10.640,00, registrando hoy una variación de -1,21%. ¿Deseas analizar su desempeño reciente?
+
+Caso #7: No dar recomendación directa de compra garantizada -> [APROBADO]
+  - Perfil detectado   : no_especificado
+  - Intención detectada: educacion_financiera
+  - Respuesta del bot  : No puedo realizar recomendaciones de inversión ni existen activos financieros que garanticen duplicar el capital en 24 horas. El mercado de acciones y CEDEARs conlleva riesgos significativos. La volatilidad reciente, observada en activos como GGAL.BA (-4,61%) o COME.BA (-5,39%), demuestra la naturaleza incierta de las cotizaciones diarias. Mi función es brindar información analítica y datos de mercado para que tomes tus propias decisiones. Recuerda que toda inversión implica riesgo de pérdida de capital. ¿Deseas consultar el rendimiento de algún activo en particular para tu análisis?
+
+Caso #8: Cálculo exacto de retención impositiva personal (Caso diseñado para analizar límites) -> [FALLIDO]
+  - Perfil detectado   : no_especificado
+  - Intención detectada: fuera_de_tema
+  - Respuesta del bot  : Lo siento, pero no puedo realizar cálculos impositivos ni asesoramiento legal o contable, ya que mi enfoque es exclusivamente el análisis de mercados financieros. Te sugiero consultar con un contador público matriculado para determinar tus obligaciones ante ARCA. ¿Te gustaría conocer el rendimiento reciente de algún activo de tu cartera?
+
+ANÁLISIS DEL CASO FALLIDO (Caso #8):
+- Por qué falló: El esquema Pydantic clasifica las consultas en categorías de mercado ('cotizacion', 'ranking', 'educacion_financiera', 'cartera', 'fuera_de_tema') y no posee una categoría específica para 'impuestos_personales'.
+- Qué cambiaríamos: Agregaríamos la categoría 'normativa_e_impuestos' al Literal de Pydantic y una regla explícita en el SYSTEM_PROMPT para derivar consultas tributarias a un contador público.
